@@ -14,19 +14,6 @@
             board = new bool[height, width];
             preview = new bool[4, 5];
             block = new Blocks();
-            CreateBoard();
-            nB = block.GetBlock();
-            PlaceBlock();
-            points = 0;
-        }
-
-        private void CreateBoard() {
-            for (int h = 0; h < height - 1; h++)
-                for (int w = 1; w < width - 1; w++)
-                    board[h, w] = false;
-            for (int h = 0; h < 4; h++)
-                for (int w = 0; w < 5; w++)
-                    board[h, w] = false;
             for (int h = height - 1; h < height; h++)
                 for (int w = 0; w < width; w++)
                     board[h, w] = true;
@@ -34,10 +21,14 @@
                 board[h, 0] = true;
                 board[h, width - 1] = true;
             }
+            nB = block.GetBlock();
+            cB = block.GetBlock();
+            PlaceBlock();
+            points = 0;
         }
 
         public override string ToString() {
-            string toSay = "";
+            string toSay = string.Empty;
             for (int i = 0; i < width; i++)
                 toSay += "* ";
             toSay += " Next block:\n";
@@ -49,7 +40,7 @@
                 if (h > 0 && h < 5)
                     for (int i = 0; i < 5; i++)
                         toSay += !preview[h - 1, i] ? "  " : "■ ";
-                toSay += "\n";
+                toSay += '\n';
             }
             for (int i = 0; i < width; i++)
                 toSay += "* ";
@@ -57,11 +48,14 @@
         }
 
         private void PlaceBlock() {
-            cB = nB;
             if (board[cB[0], cB[1] + 1] ||
             board[cB[2], cB[3] + 1] ||
             board[cB[4], cB[5] + 1] ||
-            board[cB[6], cB[7] + 1]) StartUp.GameState = false;
+            board[cB[6], cB[7] + 1]) {
+                StartUp.GameState = false;
+                return;
+            }
+            cB = nB;
             nB = block.GetBlock();
             board[cB[0], cB[1] + 1] = true;
             board[cB[2], cB[3] + 1] = true;
