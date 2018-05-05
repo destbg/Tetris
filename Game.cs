@@ -17,18 +17,16 @@ namespace Tetris {
                     case 'w': {
                         if (!onDelay) {
                             board.RotateBlock();
-                            string toSay = board.ToString();
                             SetCursorPosition(0, 0);
-                            WriteLine(toSay);
+                            WriteLine(board.ToString());
                             onDelay = true;
                         }
                         break;
                     }
                     case 'a': {
                         board.MoveBlock(2);
-                        string toSay = board.ToString();
                         SetCursorPosition(0, 0);
-                        WriteLine(toSay);
+                        WriteLine(board.ToString());
                         break;
                     }
                     case 's': {
@@ -37,9 +35,8 @@ namespace Tetris {
                     }
                     case 'd': {
                         board.MoveBlock(1);
-                        string toSay = board.ToString();
                         SetCursorPosition(0, 0);
-                        WriteLine(toSay);
+                        WriteLine(board.ToString());
                         break;
                     }
                 }
@@ -88,9 +85,8 @@ namespace Tetris {
         private void TimerTick(object sender = null, ElapsedEventArgs e = null) {
             if (allowed) {
                 board.MoveBlock(0);
-                string toSay = board.ToString();
                 SetCursorPosition(0, 0);
-                WriteLine(toSay);
+                WriteLine(board.ToString());
             }
         }
     }
