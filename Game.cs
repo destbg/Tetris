@@ -1,6 +1,6 @@
-﻿using System;
-using System.Timers;
+﻿using System.Timers;
 using static System.Console;
+using static System.ConsoleKey;
 
 namespace Tetris {
     class Game {
@@ -16,7 +16,7 @@ namespace Tetris {
                 var input = ReadKey(true).Key;
                 allowed = false;
                 switch (input) {
-                    case ConsoleKey.W: {
+                    case W: {
                         if (canRotateAndPlace) {
                             board.RotateBlock();
                             SetCursorPosition(0, 0);
@@ -25,25 +25,25 @@ namespace Tetris {
                         }
                         break;
                     }
-                    case ConsoleKey.A: {
+                    case A: {
                         board.MoveBlock(2);
                         SetCursorPosition(0, 0);
                         WriteLine(board);
                         break;
                     }
-                    case ConsoleKey.S: {
+                    case S: {
                         board.MoveBlock(0);
                         SetCursorPosition(0, 0);
                         WriteLine(board);
                         break;
                     }
-                    case ConsoleKey.D: {
+                    case D: {
                         board.MoveBlock(1);
                         SetCursorPosition(0, 0);
                         WriteLine(board);
                         break;
                     }
-                    case ConsoleKey.Spacebar: {
+                    case Spacebar: {
                         if (canRotateAndPlace) {
                             board.InstantlyPlaceBlock();
                             SetCursorPosition(0, 0);
@@ -52,7 +52,7 @@ namespace Tetris {
                         }
                         break;
                     }
-                    case ConsoleKey.Escape: {
+                    case Escape: {
                         Menu();
                         WindowWidth = 33;
                         WindowHeight = 25;
@@ -69,7 +69,7 @@ namespace Tetris {
             WriteLine("\nGame Ended\n" +
                 "Your score is: " + board.GetScore() + '\n' +
                 "Press 'R' to restart the game.");
-            while (ReadKey(true).Key != ConsoleKey.R) { }
+            while (ReadKey(true).Key != R) { }
         }
 
         private void StartScreen() {
@@ -143,8 +143,8 @@ namespace Tetris {
                     "Press '2' for 'how to play'\n" +
                     "Press '3' to quit");
                 var input = ReadKey(true).Key;
-                if (input == ConsoleKey.D1) break;
-                else if (input == ConsoleKey.D2) {
+                if (input == D1) break;
+                else if (input == D2) {
                     Clear();
                     WriteLine("1: Move the blocks left and right by presssing 'a' and 'd'\n\n" +
                         "2: Rotate the block by pressing 'w'\n\n" +
@@ -152,7 +152,7 @@ namespace Tetris {
                         "4: Move the blocks instantly by pressing 'space'");
                     ReadKey();
                 }
-                else if (input == ConsoleKey.D3) {
+                else if (input == D3) {
                     StartUp.GameState = false;
                     break;
                 }
