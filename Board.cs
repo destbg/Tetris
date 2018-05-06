@@ -30,7 +30,7 @@
         }
 
         public override string ToString() {
-            if (cantSay) return "";
+            if (cantSay) return string.Empty;
             string toSay = string.Empty;
             for (int i = 0; i < width; i++)
                 toSay += "* ";

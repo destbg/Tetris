@@ -63,13 +63,8 @@ namespace Tetris {
             WindowWidth = 120;
             WriteLine("\nGame Ended\n" +
                 "Your score is: " + board.GetScore() + '\n' +
-                "Type 'end' to restart the game.");
-            string read;
-            while ((read = ReadLine().ToLower()) != "end") {
-                SetCursorPosition(0, CursorTop - 1);
-                WriteLine("".PadLeft(100));
-                SetCursorPosition(0, CursorTop - 1);
-            }
+                "Press 'R' to restart the game.");
+            while (ReadKey(true).Key != ConsoleKey.R) { }
         }
 
         private void StartScreen() {
@@ -83,8 +78,11 @@ namespace Tetris {
                 "Types of difficulty: easy, normal, average, hard.\n");
             int difficulty = 1000;
             string input;
-            while ((input = ReadLine().ToLower()) != "easy")
-                if (input == "normal") {
+            while (true) {
+                Write("difficulty: ");
+                input = ReadLine().Trim().ToLower();
+                if (input == "easy") break;
+                else if (input == "normal") {
                     difficulty = 750;
                     break;
                 }
@@ -97,6 +95,7 @@ namespace Tetris {
                     break;
                 }
                 else WriteLine("Wrong difficulty input, try again.\n");
+            }
             Clear();
             allowed = true;
             canRotate = true;
@@ -117,9 +116,8 @@ namespace Tetris {
             rotate.Elapsed += Rotate_Elapsed;
         }
 
-        private void Rotate_Elapsed(object sender, ElapsedEventArgs e) {
+        private void Rotate_Elapsed(object sender, ElapsedEventArgs e) =>
             canRotate = true;
-        }
 
         private void TimerTick(object sender = null, ElapsedEventArgs e = null) {
             if (allowed) {
@@ -132,27 +130,26 @@ namespace Tetris {
         private void Menu() {
             WindowHeight = 30;
             WindowWidth = 120;
-            string input = "me";
-            while (input != "1") {
+            while (true) {
                 Clear();
                 WriteLine("    Paused\n" +
-                    "Type '1' to resume\n" +
-                    "Type '2' for 'how to play'\n" +
-                    "Type '3' to quit\n");
-                if (input == "2") {
+                    "Press '1' to resume\n" +
+                    "Press '2' for 'how to play'\n" +
+                    "Press '3' to quit");
+                var input = ReadKey(true).Key;
+                if (input == ConsoleKey.D1) break;
+                else if (input == ConsoleKey.D2) {
                     Clear();
                     WriteLine("1: Move the blocks left and right by presssing 'a' and 'd'\n\n" +
                         "2: Rotate the block by pressing 'w'\n\n" +
                         "3: Move the blocks faster by pressing 's'\n\n" +
                         "4: Move the blocks instantly by pressing 'space'");
                     ReadKey();
-                    input = "me";
                 }
-                else if (input == "3") {
+                else if (input == ConsoleKey.D3) {
                     StartUp.GameState = false;
                     break;
                 }
-                else input = ReadLine();
             }
         }
     }
