@@ -9,7 +9,6 @@
         private int[] m;
         private int points;
         private bool[,] preview;
-        private bool cantSay;
 
         public Board() {
             board = new bool[height, width];
@@ -26,11 +25,9 @@
             cB = block.GetBlock();
             PlaceBlock();
             points = 0;
-            cantSay = false;
         }
 
         public override string ToString() {
-            if (cantSay) return string.Empty;
             string toSay = string.Empty;
             for (int i = 0; i < width; i++)
                 toSay += "* ";
@@ -53,15 +50,17 @@
         public void InstantlyPlaceBlock() {
             byte check = nB[8];
             SetFalse();
-            while (check != cB[8])
+            byte loop = 0;
+            while (check != cB[8] && loop < 20) {
                 if (IsInsideH(m[0] + 1) || IsInsideH(m[0] + 1)
                     || IsInsideH(m[0] + 1) || IsInsideH(m[0] + 1)) { }
                 else m[0]++;
+                loop++;
+            }
             SetTrue();
         }
 
         private void PlaceBlock() {
-            cantSay = true;
             if (board[cB[0], cB[1] + 1] ||
             board[cB[2], cB[3] + 1] ||
             board[cB[4], cB[5] + 1] ||
@@ -86,7 +85,6 @@
             preview[nB[4], nB[5]] = true;
             preview[nB[6], nB[7]] = true;
             m = new int[] { 0, 1 };
-            cantSay = false;
         }
 
         public void MoveBlock(int to) {
@@ -155,7 +153,6 @@
             points;
 
         private void SetFalse() {
-            cantSay = true;
             board[cB[0] + m[0], cB[1] + m[1]] = false;
             board[cB[2] + m[0], cB[3] + m[1]] = false;
             board[cB[4] + m[0], cB[5] + m[1]] = false;
@@ -167,7 +164,6 @@
             board[cB[2] + m[0], cB[3] + m[1]] = true;
             board[cB[4] + m[0], cB[5] + m[1]] = true;
             board[cB[6] + m[0], cB[7] + m[1]] = true;
-            cantSay = false;
         }
 
         private bool IsInsideH(int h) {

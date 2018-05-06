@@ -8,19 +8,20 @@ namespace Tetris {
         private Timer timer;
         private Timer rotate;
         private bool allowed;
-        private bool canRotate;
+        private bool canRotateAndPlace;
 
         public Game() {
             StartScreen();
             while (StartUp.GameState) {
                 var input = ReadKey(true).Key;
+                allowed = false;
                 switch (input) {
                     case ConsoleKey.W: {
-                        if (canRotate) {
+                        if (canRotateAndPlace) {
                             board.RotateBlock();
                             SetCursorPosition(0, 0);
                             WriteLine(board);
-                            canRotate = false;
+                            canRotateAndPlace = false;
                         }
                         break;
                     }
@@ -31,7 +32,9 @@ namespace Tetris {
                         break;
                     }
                     case ConsoleKey.S: {
-                        TimerTick();
+                        board.MoveBlock(0);
+                        SetCursorPosition(0, 0);
+                        WriteLine(board);
                         break;
                     }
                     case ConsoleKey.D: {
@@ -41,22 +44,24 @@ namespace Tetris {
                         break;
                     }
                     case ConsoleKey.Spacebar: {
-                        board.InstantlyPlaceBlock();
-                        SetCursorPosition(0, 0);
-                        WriteLine(board);
+                        if (canRotateAndPlace) {
+                            board.InstantlyPlaceBlock();
+                            SetCursorPosition(0, 0);
+                            WriteLine(board);
+                            canRotateAndPlace = false;
+                        }
                         break;
                     }
                     case ConsoleKey.Escape: {
-                        allowed = false;
                         Menu();
                         WindowWidth = 33;
                         WindowHeight = 25;
                         SetCursorPosition(0, 0);
                         WriteLine(board);
-                        allowed = true;
                         break;
                     }
                 }
+                allowed = true;
             }
             allowed = false;
             WindowHeight = 30;
@@ -98,10 +103,11 @@ namespace Tetris {
             }
             Clear();
             allowed = true;
-            canRotate = true;
+            canRotateAndPlace = true;
             WindowWidth = 33;
-            WindowHeight = 25;
-            TimerTick();
+            WindowHeight = 23;
+            SetCursorPosition(0, 0);
+            WriteLine(board);
             timer = new Timer() {
                 Interval = difficulty,
                 AutoReset = true,
@@ -117,9 +123,9 @@ namespace Tetris {
         }
 
         private void Rotate_Elapsed(object sender, ElapsedEventArgs e) =>
-            canRotate = true;
+            canRotateAndPlace = true;
 
-        private void TimerTick(object sender = null, ElapsedEventArgs e = null) {
+        private void TimerTick(object sender, ElapsedEventArgs e) {
             if (allowed) {
                 board.MoveBlock(0);
                 SetCursorPosition(0, 0);
