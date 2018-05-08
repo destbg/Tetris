@@ -5,17 +5,67 @@ using static System.ConsoleKey;
 namespace Tetris {
     class Game {
         private Board board;
-        private Timer timer;
-        private Timer rotate;
-        private bool allowed;
-        private bool canRotateAndPlace;
+        private Timer timer, rotate;
+        private bool allowed, canRotateAndPlace;
+        private int difficulty, level;
 
         public Game() {
-            StartScreen();
+            #region start screen
+            Clear();
+            WindowHeight = 30;
+            WindowWidth = 120;
+            board = new Board();
+            WriteLine("Welcome to C# console tetris by destbg.\n" +
+                "While in-game you can access the menu by pressing the 'escape' button.\n" +
+                "To start the game type the difficulty you want to begin with.\n" +
+                "Types of difficulty: easy, normal, average, hard.\n");
+            difficulty = 1000;
+            level = 1;
+            string input;
+            while (true) {
+                Write("difficulty: ");
+                input = ReadLine().Trim().ToLower();
+                if (input == "easy") break;
+                else if (input == "normal") {
+                    difficulty = 750;
+                    break;
+                }
+                else if (input == "average") {
+                    difficulty = 500;
+                    break;
+                }
+                else if (input == "hard") {
+                    difficulty = 300;
+                    break;
+                }
+                else WriteLine("Wrong difficulty input, try again.\n");
+            }
+            Clear();
+            allowed = true;
+            canRotateAndPlace = true;
+            WindowWidth = 33;
+            WindowHeight = 23;
+            SetCursorPosition(0, 0);
+            WriteLine(board);
+            timer = new Timer() {
+                Interval = difficulty,
+                AutoReset = true,
+                Enabled = true
+            };
+            rotate = new Timer() {
+                Interval = 200,
+                AutoReset = true,
+                Enabled = true
+            };
+            timer.Elapsed += TimerTick;
+            rotate.Elapsed += Rotate_Elapsed;
+            #endregion
+            #region game
             while (StartUp.GameState) {
-                var input = ReadKey(true).Key;
+                var consoleKey = ReadKey(true).Key;
+                if (!allowed) break;
                 allowed = false;
-                switch (input) {
+                switch (consoleKey) {
                     case W: {
                         if (canRotateAndPlace) {
                             board.RotateBlock();
@@ -63,73 +113,36 @@ namespace Tetris {
                 }
                 allowed = true;
             }
-            allowed = false;
-            WindowHeight = 30;
-            WindowWidth = 120;
-            WriteLine("\nGame Ended\n" +
-                "Your score is: " + board.GetScore() + '\n' +
-                "Press 'R' to restart the game.");
+            #endregion
             while (ReadKey(true).Key != R) { }
-        }
-
-        private void StartScreen() {
-            Clear();
-            WindowHeight = 30;
-            WindowWidth = 120;
-            board = new Board();
-            WriteLine("Welcome to C# console tetris by destbg.\n" +
-                "While in-game you can access the menu by pressing the 'escape' button.\n" +
-                "To start the game type the difficulty you want to begin with.\n" +
-                "Types of difficulty: easy, normal, average, hard.\n");
-            int difficulty = 1000;
-            string input;
-            while (true) {
-                Write("difficulty: ");
-                input = ReadLine().Trim().ToLower();
-                if (input == "easy") break;
-                else if (input == "normal") {
-                    difficulty = 750;
-                    break;
-                }
-                else if (input == "average") {
-                    difficulty = 500;
-                    break;
-                }
-                else if (input == "hard") {
-                    difficulty = 300;
-                    break;
-                }
-                else WriteLine("Wrong difficulty input, try again.\n");
-            }
-            Clear();
-            allowed = true;
-            canRotateAndPlace = true;
-            WindowWidth = 33;
-            WindowHeight = 23;
-            SetCursorPosition(0, 0);
-            WriteLine(board);
-            timer = new Timer() {
-                Interval = difficulty,
-                AutoReset = true,
-                Enabled = true
-            };
-            rotate = new Timer() {
-                Interval = 200,
-                AutoReset = true,
-                Enabled = true
-            };
-            timer.Elapsed += TimerTick;
-            rotate.Elapsed += Rotate_Elapsed;
         }
 
         private void Rotate_Elapsed(object sender, ElapsedEventArgs e) =>
             canRotateAndPlace = true;
 
         private void TimerTick(object sender, ElapsedEventArgs e) {
-            if (allowed) {
+            if (!StartUp.GameState && allowed) {
+                allowed = false;
+                WindowHeight = 30;
+                WindowWidth = 120;
+                WriteLine("\nGame ended.\n" +
+                    "Your score is: " + board.GetScore() + '\n' +
+                    "Press 'R' to restart the game.");
+            }
+            else if (allowed) {
                 board.MoveBlock(0);
                 SetCursorPosition(0, 0);
                 WriteLine(board);
+            }
+            int getLevel = board.CurrentLevel;
+            if (level != getLevel) {
+                level = getLevel;
+                difficulty = (int)(difficulty + difficulty * getLevel * 0.1);
+                timer = new Timer() {
+                    Interval = difficulty,
+                    AutoReset = true,
+                    Enabled = true
+                };
             }
         }
 
@@ -150,7 +163,7 @@ namespace Tetris {
                         "2: Rotate the block by pressing 'w'\n\n" +
                         "3: Move the blocks faster by pressing 's'\n\n" +
                         "4: Move the blocks instantly by pressing 'space'");
-                    ReadKey();
+                    ReadKey(true);
                 }
                 else if (input == D3) {
                     StartUp.GameState = false;

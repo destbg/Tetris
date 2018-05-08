@@ -1,16 +1,19 @@
 ﻿namespace Tetris {
     class Board {
-        private int height = 21;
-        private int width = 10;
-        private bool[,] board;
+        private int height, width, level, linesCleared;
+        private long points;
+        private bool[,] board, preview;
         private Blocks block;
-        private byte[] cB;
-        private byte[] nB;
+        private byte[] cB, nB;
         private int[] m;
-        private int points;
-        private bool[,] preview;
+
+        public int CurrentLevel {
+            get => level;
+        }
 
         public Board() {
+            height = 21;
+            width = 10;
             board = new bool[height, width];
             preview = new bool[4, 5];
             block = new Blocks();
@@ -25,6 +28,8 @@
             cB = block.GetBlock();
             PlaceBlock();
             points = 0;
+            linesCleared = 0;
+            level = 1;
         }
 
         public override string ToString() {
@@ -40,6 +45,12 @@
                 if (h > 0 && h < 5)
                     for (int i = 0; i < 5; i++)
                         toSay += !preview[h - 1, i] ? "  " : "■ ";
+                else if (h > 5 && h < 11)
+                    toSay += h == 6 ? " Level " + level
+                        : h == 7 ? string.Empty
+                        : h == 8 ? " Cleared " + linesCleared
+                        : h == 9 ? string.Empty
+                        : " Points " + points;
                 toSay += '\n';
             }
             for (int i = 0; i < width; i++)
@@ -127,7 +138,7 @@
         }
 
         private void CheckRows() {
-            int linesCleared = 0;
+            int linesC = 0;
             for (int h = height - 2; h > 0; h--) {
                 bool full = true;
                 for (int w = 1; w < width - 1; w++)
@@ -142,14 +153,25 @@
                                 board[i + 1, w] = true;
                             }
                     h++;
-                    linesCleared++;
+                    linesC++;
                 }
             }
-            points += linesCleared == 0 ? 0 : linesCleared == 1 ? 40
-                : linesCleared == 2 ? 100 : linesCleared == 3 ? 300 : 1200;
+            points += linesC == 0 ? 0 : linesC == 1 ? 40 * level
+                : linesC == 2 ? 100 * level : linesC == 3 ? 300 : 1200 * level;
+            linesCleared += linesC;
+            if (linesCleared < 5) level = 1;
+            else if (linesCleared < 10) level = 2;
+            else if (linesCleared < 15) level = 3;
+            else if (linesCleared < 25) level = 4;
+            else if (linesCleared < 35) level = 5;
+            else if (linesCleared < 50) level = 6;
+            else if (linesCleared < 70) level = 7;
+            else if (linesCleared < 90) level = 8;
+            else if (linesCleared < 110) level = 9;
+            else if (linesCleared < 150) level = 10;
         }
 
-        public int GetScore() =>
+        public long GetScore() =>
             points;
 
         private void SetFalse() {
