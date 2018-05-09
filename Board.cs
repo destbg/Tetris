@@ -1,16 +1,14 @@
 ﻿namespace Tetris {
     class Board {
         private readonly int height, width;
-        private int level, linesCleared;
+        private int linesCleared;
         private long points;
         private readonly bool[,] board, preview;
         private Blocks block;
         private byte[] cB, nB;
         private int[] m;
 
-        public int CurrentLevel {
-            get => level;
-        }
+        public int Level { get; private set; }
 
         public Board() {
             height = 21;
@@ -30,7 +28,7 @@
             PlaceBlock();
             points = 0;
             linesCleared = 0;
-            level = 1;
+            Level = 1;
         }
         
         public override string ToString() {
@@ -47,7 +45,7 @@
                     for (int i = 0; i < 5; i++)
                         toSay += !preview[h - 1, i] ? "  " : "■ ";
                 else if (h > 5 && h < 11 && h != 7 && h != 9)
-                    toSay += h == 6 ? " Level " + level
+                    toSay += h == 6 ? " Level " + Level
                         : h == 8 ? " Cleared " + linesCleared
                         : " Points " + points;
                 toSay += '\n';
@@ -165,19 +163,19 @@
                 }
             }
             if (linesC > 0) {
-                points += linesC == 1 ? 40 * level
-                    : linesC == 2 ? 100 * level : linesC == 3 ? 300 : 1200 * level;
+                points += linesC == 1 ? 40 * Level
+                    : linesC == 2 ? 100 * Level : linesC == 3 ? 300 : 1200 * Level;
                 linesCleared += linesC;
-                if (linesCleared < 5) level = 1;
-                else if (linesCleared < 10) level = 2;
-                else if (linesCleared < 15) level = 3;
-                else if (linesCleared < 25) level = 4;
-                else if (linesCleared < 35) level = 5;
-                else if (linesCleared < 50) level = 6;
-                else if (linesCleared < 70) level = 7;
-                else if (linesCleared < 90) level = 8;
-                else if (linesCleared < 110) level = 9;
-                else if (linesCleared < 150) level = 10;
+                if (linesCleared < 5) Level = 1;
+                else if (linesCleared < 10) Level = 2;
+                else if (linesCleared < 15) Level = 3;
+                else if (linesCleared < 25) Level = 4;
+                else if (linesCleared < 35) Level = 5;
+                else if (linesCleared < 50) Level = 6;
+                else if (linesCleared < 70) Level = 7;
+                else if (linesCleared < 90) Level = 8;
+                else if (linesCleared < 110) Level = 9;
+                else if (linesCleared < 150) Level = 10;
             }
         }
 

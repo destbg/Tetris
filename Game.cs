@@ -133,7 +133,7 @@ namespace Tetris {
                 WriteLine(board);
                 SetCursorPosition(0, 0);
             }
-            int getLevel = board.CurrentLevel;
+            int getLevel = board.Level;
             if (level != getLevel) {
                 level = getLevel;
                 timer = new Timer() {
