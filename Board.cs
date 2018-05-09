@@ -1,8 +1,9 @@
 ﻿namespace Tetris {
     class Board {
-        private int height, width, level, linesCleared;
+        private readonly int height, width;
+        private int level, linesCleared;
         private long points;
-        private bool[,] board, preview;
+        private readonly bool[,] board, preview;
         private Blocks block;
         private byte[] cB, nB;
         private int[] m;
@@ -31,7 +32,7 @@
             linesCleared = 0;
             level = 1;
         }
-
+        
         public override string ToString() {
             string toSay = string.Empty;
             for (int i = 0; i < width; i++)
@@ -45,11 +46,9 @@
                 if (h > 0 && h < 5)
                     for (int i = 0; i < 5; i++)
                         toSay += !preview[h - 1, i] ? "  " : "■ ";
-                else if (h > 5 && h < 11)
+                else if (h > 5 && h < 11 && h != 7 && h != 9)
                     toSay += h == 6 ? " Level " + level
-                        : h == 7 ? string.Empty
                         : h == 8 ? " Cleared " + linesCleared
-                        : h == 9 ? string.Empty
                         : " Points " + points;
                 toSay += '\n';
             }
@@ -63,8 +62,14 @@
             SetFalse();
             byte loop = 0;
             while (check != cB[8] && loop < 20) {
-                if (IsInsideH(m[0] + 1) || IsInsideH(m[0] + 1)
-                    || IsInsideH(m[0] + 1) || IsInsideH(m[0] + 1)) { }
+                if (board[cB[0] + m[0] + 1, cB[1] + m[1]]
+                || board[cB[2] + m[0] + 1, cB[3] + m[1]]
+                || board[cB[4] + m[0] + 1, cB[5] + m[1]]
+                || board[cB[6] + m[0] + 1, cB[7] + m[1]]) {
+                    SetTrue();
+                    CheckRows();
+                    PlaceBlock();
+                }
                 else m[0]++;
                 loop++;
             }
@@ -101,16 +106,26 @@
         public void MoveBlock(int to) {
             SetFalse();
             if (to == 0)
-                if (IsInsideH(m[0] + 1) || IsInsideH(m[0] + 1)
-                    || IsInsideH(m[0] + 1) || IsInsideH(m[0] + 1)) { }
+                if (board[cB[0] + m[0] + 1, cB[1] + m[1]]
+                || board[cB[2] + m[0] + 1, cB[3] + m[1]]
+                || board[cB[4] + m[0] + 1, cB[5] + m[1]]
+                || board[cB[6] + m[0] + 1, cB[7] + m[1]]) {
+                    SetTrue();
+                    CheckRows();
+                    PlaceBlock();
+                }
                 else m[0]++;
             else if (to == 1)
-                if (IsInsideW(m[1] + 1) || IsInsideW(m[1] + 1)
-                || IsInsideW(m[1] + 1) || IsInsideW(m[1] + 1)) { }
+                if (board[cB[0] + m[0], cB[1] + m[1] + 1] ||
+                board[cB[2] + m[0], cB[3] + m[1] + 1] ||
+                board[cB[4] + m[0], cB[5] + m[1] + 1] ||
+                board[cB[6] + m[0], cB[7] + m[1] + 1]) { }
                 else m[1]++;
             else if (to == 2)
-                if (IsInsideW(m[1] - 1) || IsInsideW(m[1] - 1)
-                || IsInsideW(m[1] - 1) || IsInsideW(m[1] - 1)) { }
+                if (board[cB[0] + m[0], cB[1] + m[1] - 1] ||
+                board[cB[2] + m[0], cB[3] + m[1] - 1] ||
+                board[cB[4] + m[0], cB[5] + m[1] - 1] ||
+                board[cB[6] + m[0], cB[7] + m[1] - 1]) { }
                 else m[1]--;
             SetTrue();
         }
@@ -118,13 +133,7 @@
         public void RotateBlock() {
             if (cB[8] == 2) return;
             SetFalse();
-            byte[] arr;
-            if (cB[8] == 1) arr = block.Rotate1(cB[9]);
-            else if (cB[8] == 3) arr = block.Rotate3(cB[9]);
-            else if (cB[8] == 4) arr = block.Rotate4(cB[9]);
-            else if (cB[8] == 5) arr = block.Rotate5(cB[9]);
-            else if (cB[8] == 6) arr = block.Rotate6(cB[9]);
-            else arr = block.Rotate7(cB[9]);
+            byte[] arr = block.Rotate(cB[9], cB[8]);
             if (!IsInside(arr[0] + m[0], arr[1] + m[1]) ||
                 !IsInside(arr[2] + m[0], arr[3] + m[1]) ||
                 !IsInside(arr[4] + m[0], arr[5] + m[1]) ||
@@ -156,19 +165,21 @@
                     linesC++;
                 }
             }
-            points += linesC == 0 ? 0 : linesC == 1 ? 40 * level
-                : linesC == 2 ? 100 * level : linesC == 3 ? 300 : 1200 * level;
-            linesCleared += linesC;
-            if (linesCleared < 5) level = 1;
-            else if (linesCleared < 10) level = 2;
-            else if (linesCleared < 15) level = 3;
-            else if (linesCleared < 25) level = 4;
-            else if (linesCleared < 35) level = 5;
-            else if (linesCleared < 50) level = 6;
-            else if (linesCleared < 70) level = 7;
-            else if (linesCleared < 90) level = 8;
-            else if (linesCleared < 110) level = 9;
-            else if (linesCleared < 150) level = 10;
+            if (linesC > 0) {
+                points += linesC == 1 ? 40 * level
+                    : linesC == 2 ? 100 * level : linesC == 3 ? 300 : 1200 * level;
+                linesCleared += linesC;
+                if (linesCleared < 5) level = 1;
+                else if (linesCleared < 10) level = 2;
+                else if (linesCleared < 15) level = 3;
+                else if (linesCleared < 25) level = 4;
+                else if (linesCleared < 35) level = 5;
+                else if (linesCleared < 50) level = 6;
+                else if (linesCleared < 70) level = 7;
+                else if (linesCleared < 90) level = 8;
+                else if (linesCleared < 110) level = 9;
+                else if (linesCleared < 150) level = 10;
+            }
         }
 
         public long GetScore() =>
@@ -186,26 +197,6 @@
             board[cB[2] + m[0], cB[3] + m[1]] = true;
             board[cB[4] + m[0], cB[5] + m[1]] = true;
             board[cB[6] + m[0], cB[7] + m[1]] = true;
-        }
-
-        private bool IsInsideH(int h) {
-            if (board[cB[0] + h, cB[1] + m[1]]
-                || board[cB[2] + h, cB[3] + m[1]]
-                || board[cB[4] + h, cB[5] + m[1]]
-                || board[cB[6] + h, cB[7] + m[1]]) {
-                SetTrue();
-                CheckRows();
-                PlaceBlock();
-                return true;
-            }
-            return false;
-        }
-        private bool IsInsideW(int w) {
-            if (board[cB[0] + m[0], cB[1] + w] ||
-                board[cB[2] + m[0], cB[3] + w] ||
-                board[cB[4] + m[0], cB[5] + w] ||
-                board[cB[6] + m[0], cB[7] + w]) return true;
-            return false;
         }
 
         private bool IsInside(int h, int w) =>

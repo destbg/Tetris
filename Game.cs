@@ -5,7 +5,7 @@ using static System.ConsoleKey;
 namespace Tetris {
     class Game {
         private Board board;
-        private Timer timer, rotate;
+        private Timer timer, rotateAndPlace;
         private bool allowed, canRotateAndPlace;
         private int difficulty, level;
 
@@ -45,22 +45,21 @@ namespace Tetris {
             canRotateAndPlace = true;
             WindowWidth = 33;
             WindowHeight = 23;
-            SetCursorPosition(0, 0);
             WriteLine(board);
+            SetCursorPosition(0, 0);
             timer = new Timer() {
                 Interval = difficulty,
                 AutoReset = true,
                 Enabled = true
             };
-            rotate = new Timer() {
+            rotateAndPlace = new Timer() {
                 Interval = 200,
                 AutoReset = true,
                 Enabled = true
             };
             timer.Elapsed += TimerTick;
-            rotate.Elapsed += Rotate_Elapsed;
+            rotateAndPlace.Elapsed += RotateAndPlace_Elapsed;
             #endregion
-            #region game
             while (StartUp.GameState) {
                 var consoleKey = ReadKey(true).Key;
                 if (!allowed) break;
@@ -69,35 +68,35 @@ namespace Tetris {
                     case W: {
                         if (canRotateAndPlace) {
                             board.RotateBlock();
-                            SetCursorPosition(0, 0);
                             WriteLine(board);
+                            SetCursorPosition(0, 0);
                             canRotateAndPlace = false;
                         }
                         break;
                     }
                     case A: {
                         board.MoveBlock(2);
-                        SetCursorPosition(0, 0);
                         WriteLine(board);
+                        SetCursorPosition(0, 0);
                         break;
                     }
                     case S: {
                         board.MoveBlock(0);
-                        SetCursorPosition(0, 0);
                         WriteLine(board);
+                        SetCursorPosition(0, 0);
                         break;
                     }
                     case D: {
                         board.MoveBlock(1);
-                        SetCursorPosition(0, 0);
                         WriteLine(board);
+                        SetCursorPosition(0, 0);
                         break;
                     }
                     case Spacebar: {
                         if (canRotateAndPlace) {
                             board.InstantlyPlaceBlock();
-                            SetCursorPosition(0, 0);
                             WriteLine(board);
+                            SetCursorPosition(0, 0);
                             canRotateAndPlace = false;
                         }
                         break;
@@ -106,18 +105,17 @@ namespace Tetris {
                         Menu();
                         WindowWidth = 33;
                         WindowHeight = 25;
-                        SetCursorPosition(0, 0);
                         WriteLine(board);
+                        SetCursorPosition(0, 0);
                         break;
                     }
                 }
                 allowed = true;
             }
-            #endregion
             while (ReadKey(true).Key != R) { }
         }
 
-        private void Rotate_Elapsed(object sender, ElapsedEventArgs e) =>
+        private void RotateAndPlace_Elapsed(object sender, ElapsedEventArgs e) =>
             canRotateAndPlace = true;
 
         private void TimerTick(object sender, ElapsedEventArgs e) {
@@ -125,21 +123,21 @@ namespace Tetris {
                 allowed = false;
                 WindowHeight = 30;
                 WindowWidth = 120;
+                SetCursorPosition(0, 22);
                 WriteLine("\nGame ended.\n" +
                     "Your score is: " + board.GetScore() + '\n' +
                     "Press 'R' to restart the game.");
             }
             else if (allowed) {
                 board.MoveBlock(0);
-                SetCursorPosition(0, 0);
                 WriteLine(board);
+                SetCursorPosition(0, 0);
             }
             int getLevel = board.CurrentLevel;
             if (level != getLevel) {
                 level = getLevel;
-                difficulty = (int)(difficulty + difficulty * getLevel * 0.1);
                 timer = new Timer() {
-                    Interval = difficulty,
+                    Interval = difficulty + difficulty * getLevel * 0.1,
                     AutoReset = true,
                     Enabled = true
                 };
@@ -170,6 +168,7 @@ namespace Tetris {
                     break;
                 }
             }
+            SetCursorPosition(0, 0);
         }
     }
 }
