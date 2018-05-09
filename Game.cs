@@ -9,9 +9,12 @@ namespace Tetris {
         private bool allowed, canRotateAndPlace;
         private int difficulty, level;
 
+        public static bool GameState { get; set; }
+
         public Game() {
             #region start screen
             Clear();
+            GameState = true;
             WindowHeight = 30;
             WindowWidth = 120;
             board = new Board();
@@ -60,7 +63,7 @@ namespace Tetris {
             timer.Elapsed += TimerTick;
             rotateAndPlace.Elapsed += RotateAndPlace_Elapsed;
             #endregion
-            while (StartUp.GameState) {
+            while (GameState) {
                 var consoleKey = ReadKey(true).Key;
                 if (!allowed) break;
                 allowed = false;
@@ -119,7 +122,7 @@ namespace Tetris {
             canRotateAndPlace = true;
 
         private void TimerTick(object sender, ElapsedEventArgs e) {
-            if (!StartUp.GameState && allowed) {
+            if (!GameState && allowed) {
                 allowed = false;
                 WindowHeight = 30;
                 WindowWidth = 120;
@@ -164,7 +167,7 @@ namespace Tetris {
                     ReadKey(true);
                 }
                 else if (input == D3) {
-                    StartUp.GameState = false;
+                    GameState = false;
                     break;
                 }
             }

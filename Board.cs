@@ -79,7 +79,7 @@
             board[cB[2], cB[3] + 1] ||
             board[cB[4], cB[5] + 1] ||
             board[cB[6], cB[7] + 1]) {
-                StartUp.GameState = false;
+                Game.GameState = false;
                 return;
             }
             cB = nB;
