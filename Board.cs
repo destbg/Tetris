@@ -148,7 +148,7 @@
 
         private void CheckRows() {
             int linesC = 0;
-            for (int h = height - 2; h > 0; h--) {
+            for (int h = 0; h < height - 1; h++) {
                 bool full = true;
                 for (int w = 1; w < width - 1; w++)
                     if (!board[h, w]) { full = false; break; }
@@ -161,7 +161,6 @@
                                 board[i, w] = false;
                                 board[i + 1, w] = true;
                             }
-                    h++;
                     linesC++;
                 }
             }
