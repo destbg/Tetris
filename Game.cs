@@ -14,15 +14,16 @@ namespace Tetris {
         public Game() {
             #region start screen
             Clear();
+            CursorVisible = true;
             GameState = true;
             WindowHeight = 30;
             WindowWidth = 120;
-            board = new Board();
             WriteLine("Welcome to C# console tetris by destbg.\n" +
                 "While in-game you can access the menu by pressing the 'escape' button.\n" +
                 "To start the game type the difficulty you want to begin with.\n" +
                 "Types of difficulty: easy, normal, average, hard.\n");
             difficulty = 1000;
+            int levelOfDifficulty = 1;
             level = 1;
             string input;
             while (true) {
@@ -31,25 +32,30 @@ namespace Tetris {
                 if (input == "easy") break;
                 else if (input == "normal") {
                     difficulty = 750;
+                    levelOfDifficulty = 2;
                     break;
                 }
                 else if (input == "average") {
                     difficulty = 500;
+                    levelOfDifficulty = 3;
                     break;
                 }
                 else if (input == "hard") {
                     difficulty = 300;
+                    levelOfDifficulty = 4;
                     break;
                 }
                 else WriteLine("Wrong difficulty input, try again.\n");
             }
+            board = new Board(levelOfDifficulty);
             Clear();
             allowed = true;
             canRotateAndPlace = true;
             WindowWidth = 33;
-            WindowHeight = 23;
-            WriteLine(board);
+            WindowHeight = 22;
+            Write(board);
             SetCursorPosition(0, 0);
+            CursorVisible = false;
             timer = new Timer() {
                 Interval = difficulty,
                 AutoReset = true,
@@ -71,7 +77,7 @@ namespace Tetris {
                     case W: {
                         if (canRotateAndPlace) {
                             board.RotateBlock();
-                            WriteLine(board);
+                            Write(board);
                             SetCursorPosition(0, 0);
                             canRotateAndPlace = false;
                         }
@@ -79,26 +85,26 @@ namespace Tetris {
                     }
                     case A: {
                         board.MoveBlock(2);
-                        WriteLine(board);
+                        Write(board);
                         SetCursorPosition(0, 0);
                         break;
                     }
                     case S: {
                         board.MoveBlock(0);
-                        WriteLine(board);
+                        Write(board);
                         SetCursorPosition(0, 0);
                         break;
                     }
                     case D: {
                         board.MoveBlock(1);
-                        WriteLine(board);
+                        Write(board);
                         SetCursorPosition(0, 0);
                         break;
                     }
                     case Spacebar: {
                         if (canRotateAndPlace) {
                             board.InstantlyPlaceBlock();
-                            WriteLine(board);
+                            Write(board);
                             SetCursorPosition(0, 0);
                             canRotateAndPlace = false;
                         }
@@ -107,8 +113,8 @@ namespace Tetris {
                     case Escape: {
                         Menu();
                         WindowWidth = 33;
-                        WindowHeight = 25;
-                        WriteLine(board);
+                        WindowHeight = 22;
+                        Write(board);
                         SetCursorPosition(0, 0);
                         break;
                     }
@@ -133,7 +139,7 @@ namespace Tetris {
             }
             else if (allowed) {
                 board.MoveBlock(0);
-                WriteLine(board);
+                Write(board);
                 SetCursorPosition(0, 0);
             }
             int getLevel = board.Level;

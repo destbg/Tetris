@@ -2,6 +2,8 @@
     class Blocks {
         private readonly byte[][] block;
         private System.Random rnd;
+        private readonly byte[] recentBlocks;
+        private byte pos;
 
         public Blocks() {
             block = new byte[][] {
@@ -13,10 +15,24 @@
                     new byte[] { 0, 3, 1, 3, 2, 3, 2, 4, 6, 1 },
                     new byte[] { 0, 4, 1, 4, 2, 4, 2, 3, 7, 1 } };
             rnd = new System.Random();
+            recentBlocks = new byte[10];
+            pos = 9;
         }
 
-        public byte[] GetBlock() =>
-            block[rnd.Next(7)];
+        public byte[] GetBlock() {
+            while (true) {
+                byte[] temp = block[rnd.Next(7)];
+                byte count = 0;
+                for (int i = 0; i < 10; i++)
+                    if (recentBlocks[i] == temp[8]) count++;
+                if (count < 3) {
+                    pos++;
+                    if (pos == 10) pos = 0;
+                    recentBlocks[pos] = temp[8];
+                    return temp;
+                }
+            }
+        }
 
         public byte[] Rotate(byte r, byte b) =>
             b == 1 ? (r == 1 ? new byte[] { 1, 5, 1, 4, 1, 3, 1, 2, 1, 2 }

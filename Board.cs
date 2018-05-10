@@ -1,6 +1,7 @@
 ﻿namespace Tetris {
     class Board {
-        private readonly int height, width;
+        private readonly int height, width, lOD;
+        private readonly string lODs;
         private int linesCleared;
         private long points;
         private readonly bool[,] board, preview;
@@ -10,7 +11,7 @@
 
         public int Level { get; private set; }
 
-        public Board() {
+        public Board(int lOD) {
             height = 21;
             width = 10;
             board = new bool[height, width];
@@ -29,8 +30,10 @@
             points = 0;
             linesCleared = 0;
             Level = 1;
+            this.lOD = lOD;
+            lODs = (lOD == 1 ? "easy" : lOD == 2 ? "normal" : lOD == 3 ? "average" : "hard");
         }
-        
+
         public override string ToString() {
             string toSay = string.Empty;
             for (int i = 0; i < width; i++)
@@ -44,10 +47,9 @@
                 if (h > 0 && h < 5)
                     for (int i = 0; i < 5; i++)
                         toSay += !preview[h - 1, i] ? "  " : "■ ";
-                else if (h > 5 && h < 11 && h != 7 && h != 9)
-                    toSay += h == 6 ? " Level " + Level
-                        : h == 8 ? " Cleared " + linesCleared
-                        : " Points " + points;
+                else if (h > 5 && h < 13 && h != 7 && h != 9 && h != 11)
+                    toSay += h == 6 ? " Level " + Level : h == 8 ? " Cleared " + linesCleared
+                        : h == 10 ? " Points " + points : " L.O.D " + lODs;
                 toSay += '\n';
             }
             for (int i = 0; i < width; i++)
@@ -163,8 +165,8 @@
                 }
             }
             if (linesC > 0) {
-                points += linesC == 1 ? 40 * Level
-                    : linesC == 2 ? 100 * Level : linesC == 3 ? 300 : 1200 * Level;
+                points += linesC == 1 ? 40 * Level * lOD : linesC == 2 ? 100 * Level * lOD
+                    : linesC == 3 ? 300 : 1200 * Level * lOD;
                 linesCleared += linesC;
                 if (linesCleared < 5) Level = 1;
                 else if (linesCleared < 10) Level = 2;
