@@ -47,22 +47,21 @@ namespace Tetris {
                 }
                 else WriteLine("Wrong difficulty input, try again.\n");
             }
-            board = new Board(levelOfDifficulty);
+            CursorVisible = false;
             Clear();
+            board = new Board(levelOfDifficulty);
             allowed = true;
             canRotateAndPlace = true;
             WindowWidth = 33;
             WindowHeight = 22;
             Write(board);
-            SetCursorPosition(0, 0);
-            CursorVisible = false;
             timer = new Timer() {
                 Interval = difficulty,
                 AutoReset = true,
                 Enabled = true
             };
             rotateAndPlace = new Timer() {
-                Interval = 200,
+                Interval = 100,
                 AutoReset = true,
                 Enabled = true
             };
@@ -78,7 +77,6 @@ namespace Tetris {
                         if (canRotateAndPlace) {
                             board.RotateBlock();
                             Write(board);
-                            SetCursorPosition(0, 0);
                             canRotateAndPlace = false;
                         }
                         break;
@@ -86,26 +84,22 @@ namespace Tetris {
                     case A: {
                         board.MoveBlock(2);
                         Write(board);
-                        SetCursorPosition(0, 0);
                         break;
                     }
                     case S: {
                         board.MoveBlock(0);
                         Write(board);
-                        SetCursorPosition(0, 0);
                         break;
                     }
                     case D: {
                         board.MoveBlock(1);
                         Write(board);
-                        SetCursorPosition(0, 0);
                         break;
                     }
                     case Spacebar: {
                         if (canRotateAndPlace) {
                             board.InstantlyPlaceBlock();
                             Write(board);
-                            SetCursorPosition(0, 0);
                             canRotateAndPlace = false;
                         }
                         break;
@@ -115,7 +109,6 @@ namespace Tetris {
                         WindowWidth = 33;
                         WindowHeight = 22;
                         Write(board);
-                        SetCursorPosition(0, 0);
                         break;
                     }
                 }
@@ -133,14 +126,11 @@ namespace Tetris {
                 WindowHeight = 30;
                 WindowWidth = 120;
                 SetCursorPosition(0, 22);
-                WriteLine("\nGame ended.\n" +
-                    "Your score is: " + board.GetScore() + '\n' +
-                    "Press 'R' to restart the game.");
+                WriteLine("\nGame ended.\nPress 'R' to restart the game.");
             }
             else if (allowed) {
                 board.MoveBlock(0);
                 Write(board);
-                SetCursorPosition(0, 0);
             }
             int getLevel = board.Level;
             if (level != getLevel) {
@@ -177,7 +167,8 @@ namespace Tetris {
                     break;
                 }
             }
-            SetCursorPosition(0, 0);
+            Clear();
+            board.Borders();
         }
     }
 }
