@@ -5,8 +5,8 @@ using static System.ConsoleKey;
 namespace Tetris {
     class Game {
         private Board board;
-        private Timer timer, rotateAndPlace;
-        private bool allowed, canRotateAndPlace;
+        private Timer timer, move;
+        private bool allowed, canMove;
         private int difficulty, level;
 
         public static bool GameState { get; set; }
@@ -51,8 +51,8 @@ namespace Tetris {
             Clear();
             board = new Board(levelOfDifficulty);
             allowed = true;
-            canRotateAndPlace = true;
-            WindowWidth = 33;
+            canMove = true;
+            WindowWidth = 34;
             WindowHeight = 22;
             Write(board);
             timer = new Timer() {
@@ -60,13 +60,13 @@ namespace Tetris {
                 AutoReset = true,
                 Enabled = true
             };
-            rotateAndPlace = new Timer() {
-                Interval = 100,
+            move = new Timer() {
+                Interval = 150,
                 AutoReset = true,
                 Enabled = true
             };
             timer.Elapsed += TimerTick;
-            rotateAndPlace.Elapsed += RotateAndPlace_Elapsed;
+            move.Elapsed += Move_Elapsed;
             #endregion
             while (GameState) {
                 var consoleKey = ReadKey(true).Key;
@@ -74,16 +74,19 @@ namespace Tetris {
                 allowed = false;
                 switch (consoleKey) {
                     case W: {
-                        if (canRotateAndPlace) {
+                        if (canMove) {
                             board.RotateBlock();
                             Write(board);
-                            canRotateAndPlace = false;
+                            canMove = false;
                         }
                         break;
                     }
                     case A: {
-                        board.MoveBlock(2);
-                        Write(board);
+                        if (canMove) {
+                            board.MoveBlock(2);
+                            Write(board);
+                            canMove = false;
+                        }
                         break;
                     }
                     case S: {
@@ -92,22 +95,23 @@ namespace Tetris {
                         break;
                     }
                     case D: {
-                        board.MoveBlock(1);
-                        Write(board);
+                        if (canMove) {
+                            board.MoveBlock(1);
+                            Write(board);
+                            canMove = false;
+                        }
                         break;
                     }
                     case Spacebar: {
-                        if (canRotateAndPlace) {
+                        if (canMove) {
                             board.InstantlyPlaceBlock();
                             Write(board);
-                            canRotateAndPlace = false;
+                            canMove = false;
                         }
                         break;
                     }
                     case Escape: {
                         Menu();
-                        WindowWidth = 33;
-                        WindowHeight = 22;
                         Write(board);
                         break;
                     }
@@ -117,8 +121,8 @@ namespace Tetris {
             while (ReadKey(true).Key != R) { }
         }
 
-        private void RotateAndPlace_Elapsed(object sender, ElapsedEventArgs e) =>
-            canRotateAndPlace = true;
+        private void Move_Elapsed(object sender, ElapsedEventArgs e) =>
+            canMove = true;
 
         private void TimerTick(object sender, ElapsedEventArgs e) {
             if (!GameState && allowed) {
@@ -144,6 +148,7 @@ namespace Tetris {
         }
 
         private void Menu() {
+            ResetColor();
             WindowHeight = 30;
             WindowWidth = 120;
             while (true) {
@@ -168,6 +173,8 @@ namespace Tetris {
                 }
             }
             Clear();
+            WindowWidth = 34;
+            WindowHeight = 22;
             board.Borders();
         }
     }

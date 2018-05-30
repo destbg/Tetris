@@ -5,7 +5,7 @@ namespace Tetris {
         public bool B { get; }
         public System.ConsoleColor Color { get; }
 
-        public Tetromino(bool block = false, byte color = 9) {
+        public Tetromino(bool block = false, int color = 9) {
             B = block;
             if (color == 1) Color = Cyan;
             else if (color == 2) Color = Yellow;
