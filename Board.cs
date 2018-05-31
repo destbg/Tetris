@@ -6,7 +6,7 @@ namespace Tetris {
         private readonly int height, width, lOD;
         private readonly string lODs;
         private readonly byte[] prv;
-        private int[] cB, nB;
+        private byte[] cB, nB;
         private int linesCleared, move;
         private long points;
         private Blocks block;
@@ -34,13 +34,12 @@ namespace Tetris {
             cB = block.GetBlock();
             prv = new byte[4];
             move = 0;
-            PlaceBlock();
+            Level = 1;
             points = 0;
             linesCleared = 0;
-            Level = 1;
             this.lOD = lOD;
             lODs = (lOD == 1 ? "easy" : lOD == 2 ? "normal" : lOD == 3 ? "average" : "hard");
-            Borders();
+            PlaceBlock();
         }
 
         public override string ToString() {
@@ -48,7 +47,7 @@ namespace Tetris {
                 SetCursorPosition(2, h + 1);
                 for (int w = 1; w < width - 1; w++) {
                     ForegroundColor = board[h, w].Color;
-                    Write(!board[h, w].B ? "  " : "■ ");
+                    Write(board[h, w]);
                 }
                 WriteLine();
             }
@@ -106,10 +105,10 @@ namespace Tetris {
             if (move > 3) move = 3;
             else if (move < -2 && cB[8] == 3) move = -2;
             else if (move < -3) move = -3;
-            cB[1] += move;
-            cB[3] += move;
-            cB[5] += move;
-            cB[7] += move;
+            cB[1] = (byte)(cB[1] + move);
+            cB[3] = (byte)(cB[3] + move);
+            cB[5] = (byte)(cB[5] + move);
+            cB[7] = (byte)(cB[7] + move);
             if (move <= -2 && cB[8] == 3) move = -3;
             if (board[cB[0], cB[1]].B || board[cB[2], cB[3]].B ||
             board[cB[4], cB[5]].B || board[cB[6], cB[7]].B) {
@@ -117,7 +116,7 @@ namespace Tetris {
                 return;
             }
             nB = block.GetBlock();
-            int b = cB[8];
+            byte b = cB[8];
             board[cB[0], cB[1]] = new Tetromino(true, b);
             board[cB[2], cB[3]] = new Tetromino(true, b);
             board[cB[4], cB[5]] = new Tetromino(true, b);
@@ -127,15 +126,16 @@ namespace Tetris {
             preview[nB[2], nB[3]] = new Tetromino(true, b);
             preview[nB[4], nB[5]] = new Tetromino(true, b);
             preview[nB[6], nB[7]] = new Tetromino(true, b);
-            for (int h = 0; h < 4; h++)
+            for (int h = 0; h < 4; h++) {
+                SetCursorPosition(20, h + 2);
                 for (int w = 1; w < 6; w++) {
-                    SetCursorPosition(w * 2 + 18, h + 2);
                     ForegroundColor = preview[h, w].Color;
-                    Write(!preview[h, w].B ? ' ' : '■');
+                    Write(preview[h, w]);
                 }
+            }
             SetFalse();
             PreviewTrue();
-            ResetColor();
+            Borders();
         }
 
         public void MoveBlock(int to) {
@@ -162,7 +162,7 @@ namespace Tetris {
             if (cB[8] == 2) return;
             SetFalse();
             PreviewFalse();
-            int[] arr = block.Rotate(cB[0], cB[1], cB[2], cB[3], cB[4], cB[5], cB[6], cB[7], cB[8], cB[9]);
+            byte[] arr = block.Rotate(cB[0], cB[1], cB[2], cB[3], cB[4], cB[5], cB[6], cB[7], cB[8], cB[9]);
             if (!IsInside(arr[0], arr[1]) || !IsInside(arr[2], arr[3]) ||
                 !IsInside(arr[4], arr[5]) || !IsInside(arr[6], arr[7])) { }
             else if (board[arr[0], arr[1]].B || board[arr[2], arr[3]].B ||
@@ -194,8 +194,7 @@ namespace Tetris {
                 points += combo == 1 ? 40 * Level * lOD : combo == 2 ? 100 * Level * lOD
                     : combo == 3 ? 300 : 1200 * Level * lOD;
                 linesCleared += combo;
-                Level = linesCleared / 15 + 1;
-                Borders();
+                Level = linesCleared / 10 + 1;
             }
         }
 
@@ -234,7 +233,7 @@ namespace Tetris {
         }
 
         private void SetTrue() {
-            int b = cB[8];
+            byte b = cB[8];
             board[cB[0], cB[1]] = new Tetromino(true, b);
             board[cB[2], cB[3]] = new Tetromino(true, b);
             board[cB[4], cB[5]] = new Tetromino(true, b);
