@@ -53,6 +53,11 @@ namespace Tetris {
         }
 
         public void Borders() {
+            for (int h = 0; h < 4; h++)
+                for (int w = 0; w < 6; w++) {
+                    SetCursorPosition(w * 2 + 17, h + 2);
+                    Write(preview[h, w]);
+                }
             ResetColor();
             for (int i = 0; i < width; i++) {
                 SetCursorPosition(i * 2, 0);
@@ -130,11 +135,6 @@ namespace Tetris {
             preview[nB[2], nB[3]] = new Tetromino(true, b);
             preview[nB[4], nB[5]] = new Tetromino(true, b);
             preview[nB[6], nB[7]] = new Tetromino(true, b);
-            for (int h = 0; h < 4; h++)
-                for (int w = 0; w < 6; w++) {
-                    SetCursorPosition(w * 2 + 17, h + 2);
-                    Write(preview[h, w]);
-                }
             SetFalse();
             PreviewTrue();
             Borders();
