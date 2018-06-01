@@ -9,7 +9,8 @@ namespace Tetris {
         private bool allowed, canMove;
         private int difficulty, level;
 
-        public static bool GameState { get; set; }
+        private static bool gameState;
+        public static bool GameState { set => gameState = value; }
 
         public Game() {
             #region start screen
@@ -68,9 +69,9 @@ namespace Tetris {
             timer.Elapsed += TimerTick;
             move.Elapsed += Move_Elapsed;
             #endregion
-            while (GameState) {
+            while (gameState) {
                 var consoleKey = ReadKey(true).Key;
-                if (!GameState) break;
+                if (!gameState) break;
                 allowed = false;
                 switch (consoleKey) {
                     case W: {
@@ -125,7 +126,7 @@ namespace Tetris {
             canMove = true;
 
         private void TimerTick(object sender, ElapsedEventArgs e) {
-            if (!GameState && allowed) {
+            if (!gameState && allowed) {
                 allowed = false;
                 WindowHeight = 30;
                 WindowWidth = 120;
