@@ -5,8 +5,8 @@ namespace Tetris {
         private readonly Tetromino[,] board, preview;
         private readonly int height, width, lOD;
         private readonly string lODs;
-        private readonly byte[] prv;
-        private byte[] cB, nB;
+        private readonly int[] prv;
+        private int[] cB, nB;
         private int linesCleared, move;
         private long points;
         private Blocks block;
@@ -14,7 +14,7 @@ namespace Tetris {
         public int Level { get; private set; }
 
         public Board(int lOD) {
-            height = 21;
+            height = 24;
             width = 10;
             board = new Tetromino[height, width];
             preview = new Tetromino[4, 6];
@@ -32,7 +32,7 @@ namespace Tetris {
                     preview[h, w] = new Tetromino();
             nB = block.GetBlock();
             cB = block.GetBlock();
-            prv = new byte[4];
+            prv = new int[4];
             move = 0;
             Level = 1;
             points = 0;
@@ -43,13 +43,10 @@ namespace Tetris {
         }
 
         public override string ToString() {
-            for (int h = 0; h < height - 1; h++) {
-                SetCursorPosition(2, h + 1);
-                for (int w = 1; w < width - 1; w++) {
-                    ForegroundColor = board[h, w].Color;
+            for (int h = 3; h < height - 1; h++) {
+                SetCursorPosition(2, h - 2);
+                for (int w = 1; w < width - 1; w++)
                     Write(board[h, w]);
-                }
-                WriteLine();
             }
             ResetColor();
             return string.Empty;
@@ -60,16 +57,12 @@ namespace Tetris {
             for (int i = 0; i < width; i++) {
                 SetCursorPosition(i * 2, 0);
                 Write('*');
-            }
-            SetCursorPosition(0, 1);
-            for (int h = 1; h < height; h++) {
-                Write('*');
-                SetCursorPosition(18, h);
-                WriteLine('*');
-            }
-            for (int i = 0; i < width; i++) {
                 SetCursorPosition(i * 2, 21);
                 Write('*');
+            }
+            for (int h = 1; h < height - 3; h++) {
+                SetCursorPosition(18, h);
+                Write("*\r*");
             }
             SetCursorPosition(20, 0);
             WriteLine("Next block:");
@@ -85,7 +78,6 @@ namespace Tetris {
 
         public void InstantlyPlaceBlock() {
             SetFalse();
-            PreviewFalse();
             cB[0] = prv[0];
             cB[2] = prv[1];
             cB[4] = prv[2];
@@ -96,27 +88,39 @@ namespace Tetris {
         }
 
         private void PlaceBlock() {
-            if (!Game.GameState) return;
+            if (board[3, 1].B || board[3, 2].B || board[3, 3].B
+                || board[3, 4].B || board[3, 5].B || board[3, 6].B
+                || board[3, 7].B || board[3, 8].B) {
+                Game.GameState = false;
+                return;
+            }
             cB = nB;
             preview[cB[0], cB[1]] = new Tetromino();
             preview[cB[2], cB[3]] = new Tetromino();
             preview[cB[4], cB[5]] = new Tetromino();
             preview[cB[6], cB[7]] = new Tetromino();
-            if (move > 3) move = 3;
-            else if (move < -2 && cB[8] == 3) move = -2;
-            else if (move < -3) move = -3;
-            cB[1] = (byte)(cB[1] + move);
-            cB[3] = (byte)(cB[3] + move);
-            cB[5] = (byte)(cB[5] + move);
-            cB[7] = (byte)(cB[7] + move);
-            if (move <= -2 && cB[8] == 3) move = -3;
-            if (board[cB[0], cB[1]].B || board[cB[2], cB[3]].B ||
-            board[cB[4], cB[5]].B || board[cB[6], cB[7]].B) {
-                Game.GameState = false;
-                return;
+            if (cB[6] < 3) {
+                cB[0]++;
+                cB[2]++;
+                cB[4]++;
+                cB[6]++;
             }
+            if (cB[6] < 3) {
+                cB[0]++;
+                cB[2]++;
+                cB[4]++;
+                cB[6]++;
+            }
+            int b = cB[8];
+            if (move > 3) move = 3;
+            else if (move < -2 && b == 3) move = -2;
+            else if (move < -3) move = -3;
+            cB[1] += move;
+            cB[3] += move;
+            cB[5] += move;
+            cB[7] += move;
+            if (move <= -2 && b == 3) move = -3;
             nB = block.GetBlock();
-            byte b = cB[8];
             board[cB[0], cB[1]] = new Tetromino(true, b);
             board[cB[2], cB[3]] = new Tetromino(true, b);
             board[cB[4], cB[5]] = new Tetromino(true, b);
@@ -126,13 +130,11 @@ namespace Tetris {
             preview[nB[2], nB[3]] = new Tetromino(true, b);
             preview[nB[4], nB[5]] = new Tetromino(true, b);
             preview[nB[6], nB[7]] = new Tetromino(true, b);
-            for (int h = 0; h < 4; h++) {
-                SetCursorPosition(20, h + 2);
-                for (int w = 1; w < 6; w++) {
-                    ForegroundColor = preview[h, w].Color;
+            for (int h = 0; h < 4; h++)
+                for (int w = 0; w < 6; w++) {
+                    SetCursorPosition(w * 2 + 17, h + 2);
                     Write(preview[h, w]);
                 }
-            }
             SetFalse();
             PreviewTrue();
             Borders();
@@ -162,7 +164,7 @@ namespace Tetris {
             if (cB[8] == 2) return;
             SetFalse();
             PreviewFalse();
-            byte[] arr = block.Rotate(cB[0], cB[1], cB[2], cB[3], cB[4], cB[5], cB[6], cB[7], cB[8], cB[9]);
+            int[] arr = block.Rotate(cB[0], cB[1], cB[2], cB[3], cB[4], cB[5], cB[6], cB[7], cB[8], cB[9]);
             if (!IsInside(arr[0], arr[1]) || !IsInside(arr[2], arr[3]) ||
                 !IsInside(arr[4], arr[5]) || !IsInside(arr[6], arr[7])) { }
             else if (board[arr[0], arr[1]].B || board[arr[2], arr[3]].B ||
@@ -172,15 +174,15 @@ namespace Tetris {
         }
 
         private void CheckRows() {
-            byte combo = 0;
-            for (int h = 0; h < height - 1; h++) {
+            int combo = 0;
+            for (int h = 4; h < height - 1; h++) {
                 bool full = true;
                 for (int w = 1; w < width - 1; w++)
                     if (!board[h, w].B) { full = false; break; }
                 if (full) {
                     for (int w = 1; w < width - 1; w++)
                         board[h, w] = new Tetromino();
-                    for (int i = h; i > 1; i--)
+                    for (int i = h; i > 3; i--)
                         for (int w = 1; w < width - 1; w++)
                             if (board[i, w].B) {
                                 var t = board[i, w];
@@ -206,14 +208,14 @@ namespace Tetris {
         }
 
         private void PreviewTrue() {
-            byte pos = 0;
-            while (true) {
+            int pos = 0;
+            while (true)
                 if (board[cB[0] + pos + 1, cB[1]].B || board[cB[2] + pos + 1, cB[3]].B
                 || board[cB[4] + pos + 1, cB[5]].B || board[cB[6] + pos + 1, cB[7]].B) {
-                    prv[0] = (byte)(cB[0] + pos);
-                    prv[1] = (byte)(cB[2] + pos);
-                    prv[2] = (byte)(cB[4] + pos);
-                    prv[3] = (byte)(cB[6] + pos);
+                    prv[0] = cB[0] + pos;
+                    prv[1] = cB[2] + pos;
+                    prv[2] = cB[4] + pos;
+                    prv[3] = cB[6] + pos;
                     board[prv[0], cB[1]] = new Tetromino(true);
                     board[prv[1], cB[3]] = new Tetromino(true);
                     board[prv[2], cB[5]] = new Tetromino(true);
@@ -222,7 +224,6 @@ namespace Tetris {
                     return;
                 }
                 else pos++;
-            }
         }
 
         private void SetFalse() {
@@ -233,7 +234,7 @@ namespace Tetris {
         }
 
         private void SetTrue() {
-            byte b = cB[8];
+            int b = cB[8];
             board[cB[0], cB[1]] = new Tetromino(true, b);
             board[cB[2], cB[3]] = new Tetromino(true, b);
             board[cB[4], cB[5]] = new Tetromino(true, b);

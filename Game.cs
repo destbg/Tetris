@@ -70,7 +70,7 @@ namespace Tetris {
             #endregion
             while (GameState) {
                 var consoleKey = ReadKey(true).Key;
-                if (!allowed) break;
+                if (!GameState) break;
                 allowed = false;
                 switch (consoleKey) {
                     case W: {
