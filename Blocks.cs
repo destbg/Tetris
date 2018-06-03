@@ -2,9 +2,9 @@
 
 namespace Tetris {
     class Blocks {
-        private System.Random rnd;
-        private readonly int[] recentBlocks;
-        private int pos;
+        readonly System.Random rnd;
+        readonly int[] recentBlocks;
+        int pos;
 
         public Blocks() {
             rnd = new System.Random();
@@ -22,7 +22,7 @@ namespace Tetris {
                     new int[] { 0, 4, 1, 4, 2, 4, 2, 5, 6, 1 },
                     new int[] { 0, 5, 1, 5, 2, 5, 2, 4, 7, 1 } };
             while (true) {
-                int[] temp = block[rnd.Next(7)];
+                var temp = block[rnd.Next(7)];
                 if (!recentBlocks.Contains(temp[8])) {
                     pos++;
                     if (pos == 3) pos = 0;
