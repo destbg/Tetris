@@ -10,13 +10,13 @@ namespace Tetris {
         int level, difficulty;
 
         private static bool gameState;
-        public static bool GameState { set => gameState = value; }
+        public static void EndGame() =>
+            gameState = false;
 
         public Game() {
             StartScreen();
+            var consoleKey = Backspace;
             while (gameState) {
-                var consoleKey = ReadKey(true).Key;
-                if (!gameState) break;
                 allowed = false;
                 switch (consoleKey) {
                     case W: CaseW(); break;
@@ -27,6 +27,7 @@ namespace Tetris {
                     case Escape: Menu(); break;
                 }
                 allowed = true;
+                consoleKey = ReadKey(true).Key;
             }
             while (ReadKey(true).Key != R) { }
         }
@@ -60,7 +61,7 @@ namespace Tetris {
         private void StartScreen() {
             Clear();
             CursorVisible = true;
-            GameState = true;
+            gameState = true;
             WindowHeight = 30;
             WindowWidth = 120;
             WriteLine("Welcome to C# console Tetris by destbg.\n" +

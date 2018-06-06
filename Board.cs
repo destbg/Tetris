@@ -98,7 +98,7 @@ namespace Tetris {
 
         private void PlaceBlock() {
             if (EndGame()) {
-                Game.GameState = false;
+                Game.EndGame();
                 return;
             }
             cB = nB;
@@ -112,15 +112,15 @@ namespace Tetris {
                 cB[4]++;
                 cB[6]++;
             }
-            var b = cB[8];
             if (move > 3) move = 3;
+            else if (move < -2 && cB[8] == 3) move = -2;
             else if (move < -3) move = -3;
             cB[1] += move;
             cB[3] += move;
             cB[5] += move;
             cB[7] += move;
             nB = block.GetBlock();
-            b = nB[8];
+            var b = nB[8];
             preview[nB[0]][nB[1]] = new Tetromino(true, b);
             preview[nB[2]][nB[3]] = new Tetromino(true, b);
             preview[nB[4]][nB[5]] = new Tetromino(true, b);
@@ -170,19 +170,20 @@ namespace Tetris {
 
         private void CheckRows() {
             var combo = 0;
-            for (int h = 4; h < height - 1; h++)
-                if (board[h].All(x => x.B)) {
+            for (int h = 4; h < height - 1; h++) {
+                if (!board[h].All(x => x.B)) continue;
+                for (int w = 1; w < width - 1; w++)
+                    board[h][w] = new Tetromino();
+                for (int i = h; i > 4; i--)
                     for (int w = 1; w < width - 1; w++)
-                        board[h][w] = new Tetromino();
-                    for (int i = h; i > 4; i--)
-                        for (int w = 1; w < width - 1; w++)
-                            if (board[i][w].B) {
-                                var t = board[i][w];
-                                board[i][w] = new Tetromino();
-                                board[i + 1][w] = t;
-                            }
-                    combo++;
-                }
+                        if (board[i][w].B) {
+                            var t = board[i][w];
+                            board[i][w] = new Tetromino();
+                            board[i + 1][w] = t;
+                        }
+
+                combo++;
+            }
             if (combo <= 0) return;
             points += combo == 1 ? 40 * Level * lOD : combo == 2 ? 100 * Level * lOD
                 : combo == 3 ? 300 : 1200 * Level * lOD;
