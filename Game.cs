@@ -3,13 +3,13 @@ using static System.Console;
 using static System.ConsoleKey;
 
 namespace Tetris {
-    class Game {
+    internal class Game {
         Board board;
         Timer timer, move;
         bool allowed, canMove;
         int level, difficulty;
 
-        static bool gameState;
+        private static bool gameState;
         public static bool GameState { set => gameState = value; }
 
         public Game() {
@@ -31,10 +31,10 @@ namespace Tetris {
             while (ReadKey(true).Key != R) { }
         }
 
-        void Move_Elapsed(object sender, ElapsedEventArgs e) =>
+        private void Move_Elapsed(object sender, ElapsedEventArgs e) =>
             canMove = true;
 
-        void TimerTick(object sender, ElapsedEventArgs e) {
+        private void TimerTick(object sender, ElapsedEventArgs e) {
             if (!gameState && allowed) {
                 allowed = false;
                 WindowHeight = 30;
@@ -57,7 +57,7 @@ namespace Tetris {
             }
         }
 
-        void StartScreen() {
+        private void StartScreen() {
             Clear();
             CursorVisible = true;
             GameState = true;
@@ -114,7 +114,7 @@ namespace Tetris {
             move.Elapsed += Move_Elapsed;
         }
 
-        void CaseW() {
+        private void CaseW() {
             if (canMove) {
                 board.RotateBlock();
                 Write(board);
@@ -122,7 +122,7 @@ namespace Tetris {
             }
         }
 
-        void CaseA() {
+        private void CaseA() {
             if (canMove) {
                 board.MoveBlock(2);
                 Write(board);
@@ -130,12 +130,12 @@ namespace Tetris {
             }
         }
 
-        void CaseS() {
+        private void CaseS() {
             board.MoveBlock(0);
             Write(board);
         }
 
-        void CaseD() {
+        private void CaseD() {
             if (canMove) {
                 board.MoveBlock(1);
                 Write(board);
@@ -143,7 +143,7 @@ namespace Tetris {
             }
         }
 
-        void CaseSpacebar() {
+        private void CaseSpacebar() {
             if (canMove) {
                 board.InstantlyPlaceBlock();
                 Write(board);
@@ -151,7 +151,7 @@ namespace Tetris {
             }
         }
 
-        void Menu() {
+        private void Menu() {
             ResetColor();
             WindowHeight = 30;
             WindowWidth = 120;

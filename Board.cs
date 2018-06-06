@@ -2,7 +2,7 @@
 using static System.Console;
 
 namespace Tetris {
-    class Board {
+    internal class Board {
         readonly Tetromino[][] board, preview;
         readonly int height, width, lOD;
         readonly string lODs;
@@ -96,7 +96,7 @@ namespace Tetris {
             PlaceBlock();
         }
 
-        void PlaceBlock() {
+        private void PlaceBlock() {
             if (EndGame()) {
                 Game.GameState = false;
                 return;
@@ -142,10 +142,12 @@ namespace Tetris {
                     }
                     cB[0]++; cB[2]++; cB[4]++; cB[6]++;
                     break;
+
                 case 1:
                     if (CheckSides(1)) break;
                     cB[1]++; cB[3]++; cB[5]++; cB[7]++; move++;
                     break;
+
                 case 2:
                     if (CheckSides(-1)) break;
                     cB[1]--; cB[3]--; cB[5]--; cB[7]--; move--;
@@ -166,10 +168,10 @@ namespace Tetris {
             PreviewTrue();
         }
 
-        void CheckRows() {
+        private void CheckRows() {
             var combo = 0;
             for (int h = 4; h < height - 1; h++)
-                if (!board[h].Any(x => !x.B)) {
+                if (board[h].All(x => x.B)) {
                     for (int w = 1; w < width - 1; w++)
                         board[h][w] = new Tetromino();
                     for (int i = h; i > 4; i--)
@@ -181,22 +183,21 @@ namespace Tetris {
                             }
                     combo++;
                 }
-            if (combo > 0) {
-                points += combo == 1 ? 40 * Level * lOD : combo == 2 ? 100 * Level * lOD
-                    : combo == 3 ? 300 : 1200 * Level * lOD;
-                linesCleared += combo;
-                Level = linesCleared / 10 + 1;
-            }
+            if (combo <= 0) return;
+            points += combo == 1 ? 40 * Level * lOD : combo == 2 ? 100 * Level * lOD
+                : combo == 3 ? 300 : 1200 * Level * lOD;
+            linesCleared += combo;
+            Level = linesCleared / 10 + 1;
         }
 
-        void PreviewFalse() {
+        private void PreviewFalse() {
             board[prv[0]][cB[1]] = new Tetromino();
             board[prv[1]][cB[3]] = new Tetromino();
             board[prv[2]][cB[5]] = new Tetromino();
             board[prv[3]][cB[7]] = new Tetromino();
         }
 
-        void PreviewTrue() {
+        private void PreviewTrue() {
             var pos = 0;
             while (true) {
                 if (CheckBelow(pos + 1)) {
@@ -215,14 +216,14 @@ namespace Tetris {
             }
         }
 
-        void SetFalse() {
+        private void SetFalse() {
             board[cB[0]][cB[1]] = new Tetromino();
             board[cB[2]][cB[3]] = new Tetromino();
             board[cB[4]][cB[5]] = new Tetromino();
             board[cB[6]][cB[7]] = new Tetromino();
         }
 
-        void SetTrue() {
+        private void SetTrue() {
             var b = cB[8];
             board[cB[0]][cB[1]] = new Tetromino(true, b);
             board[cB[2]][cB[3]] = new Tetromino(true, b);
@@ -230,21 +231,21 @@ namespace Tetris {
             board[cB[6]][cB[7]] = new Tetromino(true, b);
         }
 
-        bool IsInside(int h1, int w1, int h2, int w2, int h3, int w3, int h4, int w4) =>
+        private bool IsInside(int h1, int w1, int h2, int w2, int h3, int w3, int h4, int w4) =>
             w1 > 0 && h1 < height - 1 && w1 < width - 1 ||
             w2 > 0 && h2 < height - 1 && w2 < width - 1 ||
             w3 > 0 && h3 < height - 1 && w3 < width - 1 ||
             w4 > 0 && h4 < height - 1 && w4 < width - 1;
 
-        bool EndGame() =>
+        private bool EndGame() =>
             board[3][1].B || board[3][2].B || board[3][3].B || board[3][4].B ||
             board[3][5].B || board[3][6].B || board[3][7].B || board[3][8].B;
 
-        bool CheckSides(int side) =>
+        private bool CheckSides(int side) =>
             board[cB[0]][cB[1] + side].B || board[cB[2]][cB[3] + side].B ||
             board[cB[4]][cB[5] + side].B || board[cB[6]][cB[7] + side].B;
 
-        bool CheckBelow(int value) =>
+        private bool CheckBelow(int value) =>
             board[cB[0] + value][cB[1]].B || board[cB[2] + value][cB[3]].B ||
             board[cB[4] + value][cB[5]].B || board[cB[6] + value][cB[7]].B;
     }
